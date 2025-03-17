@@ -1,0 +1,51 @@
+{
+  "M1": {
+    "total_changes": 15,
+    "total_setup_time": 560,
+    "material_counts": {
+      "Citybike_Hauptrahmen_zugeschnitten": 5,
+      "E-Bike_Hauptrahmen_zugeschnitten": 4,
+      "Racebike_Hauptrahmen_zugeschnitten": 3,
+      "Mountainbike_Hauptrahmen_zugeschnitten": 3
+    }
+  },
+  "M2": {
+    "total_changes": 55,
+    "total_setup_time": 1080,
+    "material_counts": {
+      "Citybike_Schaltauge_bearbeitet": 6,
+      "E-Bike_Schaltauge_bearbeitet": 4,
+      "Racebike_Schaltauge_bearbeitet": 5,
+      "E-Bike_Bremsaufnahme_gebohrt": 2,
+      "Citybike_Fahrrad_endmontiert": 4,
+      "Mountainbike_Schaltauge_bearbeitet": 3,
+      "Racebike_Bremsaufnahme_gebohrt": 3,
+      "Mountainbike_Bremsaufnahme_gebohrt": 2,
+      "Mountainbike_Rahmen_nachbearbeitet": 2,
+      "Racebike_Rahmen_nachbearbeitet": 6,
+      "Citybike_Bremsaufnahme_gebohrt": 4,
+      "Citybike_Rahmen_nachbearbeitet": 5,
+      "Racebike_Fahrrad_endmontiert": 2,
+      "Mountainbike_Fahrrad_endmontiert": 4,
+      "E-Bike_Rahmen_nachbearbeitet": 3
+    }
+  },
+  "M3": {
+    "total_changes": 44,
+    "total_setup_time": 645,
+    "material_counts": {
+      "Citybike_Antrieb_installiert": 6,
+      "Citybike_Bremsen_justiert": 3,
+      "E-Bike_Antrieb_installiert": 3,
+      "E-Bike_Bremsen_justiert": 2,
+      "Racebike_Antrieb_installiert": 4,
+      "E-Bike_Fahrrad_endmontiert": 7,
+      "Mountainbike_Antrieb_installiert": 3,
+      "Citybike_Fahrrad_endmontiert": 4,
+      "Mountainbike_Fahrrad_endmontiert": 5,
+      "Racebike_Bremsen_justiert": 2,
+      "Mountainbike_Bremsen_justiert": 1,
+      "Racebike_Fahrrad_endmontiert": 4
+    }
+  }
+}

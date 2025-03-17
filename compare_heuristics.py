@@ -91,22 +91,59 @@ def run_ppo_agent(env, model_path, jsp_data, num_episodes=10):
     # Load the model state to check dimensions
     model_state = torch.load(model_path)
     
-    # Adjust all dimensions to match the saved model
-    if 'node_embedding' in model_state:
-        # Get embedding dimension from saved model
-        embedding_dim = model_state['node_embedding']['weight'].shape[0]
-        agent.embedding_dim = embedding_dim
-        
-        # Get hidden dimension from saved model
-        hidden_dim = model_state['graph_layer1']['weight'].shape[0]
-        agent.hidden_dim = hidden_dim
-        
-        # Recreate all layers with correct dimensions
-        node_features = 7  # From the original code
-        agent.node_embedding = torch.nn.Linear(node_features, agent.embedding_dim)
-        agent.graph_layer1 = torch.nn.Linear(agent.embedding_dim, agent.hidden_dim)
-        agent.graph_layer2 = torch.nn.Linear(agent.hidden_dim, agent.hidden_dim)
-        agent.output_layer = torch.nn.Linear(agent.hidden_dim, agent.num_jobs)
+    # Check if we're dealing with a transformer-based model
+    is_transformer_model = 'transformer_encoder' in model_state
+    
+    if is_transformer_model:
+        print("Loading transformer-based model...")
+        # Extract the embedding dimension from the saved model
+        if 'transformer_encoder' in model_state:
+            # Get embedding dimension from the transformer layers
+            emb_dim = model_state['transformer_encoder']['layers.0.norm1.weight'].size(0)
+            print(f"Detected embedding dimension: {emb_dim}")
+            
+            # Set the embedding dimension in the agent
+            agent.embedding_dim = emb_dim
+            
+            # Set the number of attention heads (nhead)
+            # The in_proj_weight shape is [3*emb_dim, emb_dim] for multi-head attention
+            in_proj_weight_shape = model_state['transformer_encoder']['layers.0.self_attn.in_proj_weight'].shape
+            nhead = in_proj_weight_shape[0] // (3 * emb_dim)
+            if nhead == 0:  # Fallback if calculation doesn't work
+                nhead = 3
+            agent.nhead = nhead
+            print(f"Using {nhead} attention heads")
+            
+            # Recreate the transformer with matching dimensions
+            import torch.nn as nn
+            encoder_layer = nn.TransformerEncoderLayer(
+                d_model=emb_dim, 
+                nhead=nhead,
+                dim_feedforward=2048,  # Standard size
+                dropout=0.1,
+                batch_first=False  # Match the saved model
+            )
+            agent.transformer_layers = 2  # Standard for small models
+            agent.transformer_encoder = nn.TransformerEncoder(
+                encoder_layer, 
+                num_layers=agent.transformer_layers
+            )
+            
+            # Recreate the output layer
+            agent.output_layer = nn.Linear(emb_dim, agent.num_jobs)
+    else:
+        print("Loading graph-based model...")
+        # Handle graph-based model as before
+        if 'graph_layer1' in model_state:
+            hidden_dim = model_state['graph_layer1']['weight'].shape[0]
+            agent.hidden_dim = hidden_dim
+            
+            # Recreate all layers with correct dimensions
+            node_features = 7  # From the original code
+            agent.node_embedding = torch.nn.Linear(node_features, agent.embedding_dim)
+            agent.graph_layer1 = torch.nn.Linear(agent.embedding_dim, agent.hidden_dim)
+            agent.graph_layer2 = torch.nn.Linear(agent.hidden_dim, agent.hidden_dim)
+            agent.output_layer = torch.nn.Linear(agent.hidden_dim, agent.num_jobs)
     
     # Now load the model with adjusted architecture
     agent.load_model(model_path)
@@ -193,8 +230,8 @@ def compare_heuristics(jsp_data_path, model_path, num_episodes=10):
         print(f"{h:<10} {m:<15.2f} {u:<15.2f}")
 
 if __name__ == "__main__":
-    jsp_data_path = "/Users/paulmill/Desktop/Reinforcement Learning/data.json"
-    model_path = "/Users/paulmill/Desktop/Reinforcement Learning/results/models/gym_ppo_checkpoint_ep50.pt"
+    jsp_data_path = "/Users/timoelkers/Desktop/FInal_für_Doku/Reinforcement-Learning/data.json"
+    model_path = "/Users/timoelkers/Desktop/FInal_für_Doku/Reinforcement-Learning/results/models/gym_ppo_model_20250315_154516.pt"
     
     # Run comparison with 10 episodes per heuristic
     compare_heuristics(jsp_data_path, model_path, num_episodes=10)
